@@ -121,5 +121,14 @@ public class Application {
     @Column(length = 500)
     private String actualGoods;
 
+    // ---------- 现场换品审核结果 ----------
+    /** 换品审核通过后的食品安全提示（现场公示/告知摊主） */
+    @Column(length = 500)
+    private String foodSafetyNotice;
+
+    /** 换品审核通过后的用电变更提示 */
+    @Column(length = 500)
+    private String powerUpdateNote;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 }

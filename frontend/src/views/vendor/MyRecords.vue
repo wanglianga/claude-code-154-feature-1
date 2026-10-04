@@ -81,6 +81,12 @@
           <el-alert v-if="current.allocationReason" type="info" :closable="false" style="margin-top:10px;">
             摊位分配说明：{{ current.allocationReason }}
           </el-alert>
+          <el-alert v-if="current.foodSafetyNotice" type="warning" :closable="false" style="margin-top:10px;">
+            食品安全提示：{{ current.foodSafetyNotice }}
+          </el-alert>
+          <el-alert v-if="current.powerUpdateNote" type="warning" :closable="false" style="margin-top:10px;">
+            用电变更提示：{{ current.powerUpdateNote }}
+          </el-alert>
         </el-card>
         <el-empty v-else description="选择一条已通过审核的报名查看入场码" />
       </el-col>

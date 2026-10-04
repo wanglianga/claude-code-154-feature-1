@@ -34,6 +34,7 @@ public class EventService {
     private final IncidentRepository incidentRepository;
     private final UserRepository userRepository;
     private final PublicityRepository publicityRepository;
+    private final GoodsChangeRequestRepository goodsChangeRequestRepository;
     private final ViewSupport viewSupport;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -93,6 +94,7 @@ public class EventService {
         archive.put("applications", apps.stream().map(a -> viewSupport.applicationView(a, true)).toList());
         archive.put("complaints", complaintRepository.findByEventIdOrderByIdDesc(eventId));
         archive.put("incidents", incidentRepository.findByEventIdOrderByIdDesc(eventId));
+        archive.put("goodsChanges", goodsChangeRequestRepository.findByEventIdOrderByIdDesc(eventId));
         archive.put("payments", paymentRepository.findByEventIdOrderByIdDesc(eventId));
         archive.put("donations", donationRepository.findByEventIdOrderByIdAsc(eventId));
         archive.put("publicity", publicityRepository.findByEventId(eventId).orElse(null));
@@ -183,6 +185,14 @@ public class EventService {
         long mismatch = incidents.stream().filter(i -> i.getType() == IncidentType.MISMATCH).count();
         if (mismatch > 0) {
             tips.add("出现 " + mismatch + " 起卖品与报名不符，下次报名应细化品类并在入场时增加货品核验");
+        }
+        long goodsChangeRemoved = incidents.stream().filter(i -> i.getType() == IncidentType.GOODS_CHANGE_REMOVED).count();
+        if (goodsChangeRemoved > 0) {
+            tips.add("发生 " + goodsChangeRemoved + " 起现场换品资质不足被下架，下次应在报名须知中明确「临时换品须提前报备」并对涉事摊主执行提前复核");
+        }
+        long foodRisk = incidents.stream().filter(i -> i.getType() == IncidentType.FOOD_RISK).count();
+        if (foodRisk > 0) {
+            tips.add("发生 " + foodRisk + " 起食品安全风险事件，涉事摊主已限制后续食品类报名，下次食品摊位须全部持证并现场复核");
         }
         long donationDispute = incidents.stream().filter(i -> i.getType() == IncidentType.DONATION_MISMATCH).count();
         if (donationDispute > 0) {

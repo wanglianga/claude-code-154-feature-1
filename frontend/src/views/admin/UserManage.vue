@@ -25,6 +25,28 @@
             <span v-else>—</span>
           </template>
         </el-table-column>
+        <el-table-column label="报名限制" min-width="200">
+          <template #default="{ row }">
+            <template v-if="row.role === 'VENDOR'">
+              <el-tag v-if="row.nextApplyReviewRequired" size="small" type="danger" style="margin-right:4px;">
+                下次报名需提前复核
+              </el-tag>
+              <el-tag v-if="row.foodRiskLevel >= 1" size="small" :type="row.foodRiskLevel >= 2 ? 'danger' : 'warning'">
+                {{ dictLabel(FOOD_RISK_LEVELS, row.foodRiskLevel) }}
+              </el-tag>
+              <span v-if="!row.nextApplyReviewRequired && !row.foodRiskLevel" style="color:#c0c4cc;">无</span>
+            </template>
+            <span v-else>—</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="140">
+          <template #default="{ row }">
+            <el-button v-if="row.role === 'VENDOR' && row.nextApplyReviewRequired"
+                       size="small" type="success" @click="clearFlag(row)">
+              完成提前复核
+            </el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
 
@@ -52,8 +74,9 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { api } from '../../api/client'
+import { FOOD_RISK_LEVELS, dictLabel } from '../../dict'
 
 const users = ref([])
 const dialog = ref(false)
@@ -81,6 +104,15 @@ async function save() {
 }
 async function load() {
   users.value = await api.get('/admin/users')
+}
+async function clearFlag(row) {
+  await ElMessageBox.confirm(
+    `确认已完成对「${row.realName || row.username}」的提前复核？复核通过后该摊主可正常报名下次活动。`,
+    '完成提前复核', { type: 'warning' }
+  )
+  await api.post(`/admin/users/${row.id}/clear-review-flag`)
+  ElMessage.success('已清除「下次报名需提前复核」标记')
+  load()
 }
 onMounted(load)
 </script>

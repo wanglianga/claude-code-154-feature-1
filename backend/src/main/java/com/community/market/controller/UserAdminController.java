@@ -36,4 +36,11 @@ public class UserAdminController {
         tokenStore.requireRole(UserRole.ADMIN);
         return ApiResult.ok(userService.adminCreate(role, req));
     }
+
+    /** 完成提前复核：清除摊主「下次报名需提前复核」限制 */
+    @PostMapping("/{id}/clear-review-flag")
+    public ApiResult<User> clearReviewFlag(@PathVariable Long id) {
+        tokenStore.requireRole(UserRole.ADMIN);
+        return ApiResult.ok(userService.clearReviewFlag(id));
+    }
 }

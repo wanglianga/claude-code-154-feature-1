@@ -193,6 +193,15 @@ function ruleCheck(a) {
     ok = false
     tips.push('摊主信用分低于 80，建议审慎通过并限制黄金摊位')
   }
+  if (a.vendor?.nextApplyReviewRequired) {
+    tips.push('该摊主上次活动存在现场违规处理记录，本次报名已完成提前复核（管理员已清除复核标记后方可报名）')
+  }
+  if (a.vendor?.foodRiskLevel >= 2) {
+    ok = false
+    tips.push('该摊主曾发生食品安全风险事件，已被限制报名食品类摊位')
+  } else if (a.vendor?.foodRiskLevel === 1 && a.category === 'FOOD') {
+    tips.push('该摊主曾因换品资质不足被下架（食品风险：关注），建议现场重点核验食品资质')
+  }
   return { ok, tips }
 }
 

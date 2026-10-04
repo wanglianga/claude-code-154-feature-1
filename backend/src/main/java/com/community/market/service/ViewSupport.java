@@ -27,6 +27,7 @@ public class ViewSupport {
     private final ComplaintRepository complaintRepository;
     private final IncidentRepository incidentRepository;
     private final InspectionRepository inspectionRepository;
+    private final GoodsChangeRequestRepository goodsChangeRequestRepository;
 
     public Map<String, Object> userBrief(Long id) {
         if (id == null) {
@@ -39,6 +40,8 @@ public class ViewSupport {
             m.put("realName", u.getRealName());
             m.put("phone", u.getPhone());
             m.put("creditScore", u.getCreditScore());
+            m.put("nextApplyReviewRequired", u.isNextApplyReviewRequired());
+            m.put("foodRiskLevel", u.getFoodRiskLevel());
             return m;
         }).orElse(null);
     }
@@ -103,6 +106,8 @@ public class ViewSupport {
         m.put("materialsCollected", a.isMaterialsCollected());
         m.put("materialsCollectedAt", a.getMaterialsCollectedAt());
         m.put("actualGoods", a.getActualGoods());
+        m.put("foodSafetyNotice", a.getFoodSafetyNotice());
+        m.put("powerUpdateNote", a.getPowerUpdateNote());
         m.put("createdAt", a.getCreatedAt());
 
         if (withRelations) {
@@ -117,6 +122,7 @@ public class ViewSupport {
             m.put("complaints", complaintRepository.findByApplicationIdOrderByIdDesc(a.getId()));
             m.put("incidents", incidentRepository.findByApplicationIdOrderByIdDesc(a.getId()));
             m.put("inspections", inspectionRepository.findByApplicationIdOrderByCreatedAtDesc(a.getId()));
+            m.put("goodsChanges", goodsChangeRequestRepository.findByApplicationIdOrderByIdDesc(a.getId()));
         }
         return m;
     }

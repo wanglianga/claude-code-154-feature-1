@@ -35,6 +35,14 @@ public class ApplicationService {
         if (applicationRepository.findByEventIdAndVendorId(req.eventId(), vendorId).isPresent()) {
             throw new BizException("您已报名该活动，请勿重复报名");
         }
+        // 上次活动存在现场违规处理记录（如换品被下架/食品安全风险事件）→ 本次报名需提前复核
+        if (vendor.isNextApplyReviewRequired()) {
+            throw new BizException("您在上次活动中存在现场违规处理记录，本次报名需提前复核，请联系社区管理员完成复核后再报名");
+        }
+        // 食品安全风险事件影响后续食品类报名
+        if (req.category() == StallType.FOOD && vendor.getFoodRiskLevel() != null && vendor.getFoodRiskLevel() >= 2) {
+            throw new BizException("您曾发生食品安全风险事件，暂不能报名食品类摊位，可选择其他品类");
+        }
         if (req.donationRate() == null || req.donationRate().signum() < 0
                 || req.donationRate().compareTo(new BigDecimal("100")) > 0) {
             throw new BizException("公益捐赠比例需在 0-100 之间");

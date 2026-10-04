@@ -66,6 +66,14 @@ public class UserService {
         return role == null ? userRepository.findAll() : userRepository.findByRoleOrderByIdAsc(role);
     }
 
+    /** 管理员完成提前复核后，清除摊主「下次报名需提前复核」标记 */
+    @Transactional
+    public User clearReviewFlag(Long userId) {
+        User u = userRepository.findById(userId).orElseThrow(() -> new BizException("用户不存在"));
+        u.setNextApplyReviewRequired(false);
+        return userRepository.save(u);
+    }
+
     public AuthDtos.UserResponse toResponse(User u) {
         return new AuthDtos.UserResponse(u.getId(), u.getUsername(), u.getRealName(), u.getPhone(),
                 u.getRole().name(), u.getCreditScore(), u.isEnabled());

@@ -137,6 +137,40 @@
           </el-table>
         </el-tab-pane>
 
+        <el-tab-pane :label="`换品审核(${archive.goodsChanges?.length || 0})`" name="goodsChanges">
+          <el-table :data="archive.goodsChanges || []" border size="small">
+            <el-table-column prop="createdAt" label="时间" width="170" />
+            <el-table-column label="报名ID" prop="applicationId" width="80" />
+            <el-table-column label="换品内容" min-width="180" show-overflow-tooltip>
+              <template #default="{ row }">
+                <el-tag size="small" style="margin-right:4px;">{{ dictLabel(STALL_TYPES, row.newCategory) }}</el-tag>
+                {{ row.newGoodsDescription }}
+                <el-tag v-if="row.involvesFood" size="small" type="danger" style="margin-left:4px;">涉食</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="状态" width="90">
+              <template #default="{ row }">
+                <el-tag size="small" :type="dictType(CHANGE_STATUS, row.status)">
+                  {{ dictLabel(CHANGE_STATUS, row.status) }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="处理结果" min-width="220">
+              <template #default="{ row }">
+                <template v-if="row.status === 'REMOVED'">
+                  已售 {{ row.soldQuantity }} 件｜{{ row.refundNeeded ? '需退款' : '无需退款' }}
+                  {{ row.refundNote || '' }}｜照片：{{ row.photoUrls }}
+                </template>
+                <template v-else-if="row.status === 'APPROVED'">
+                  <div v-if="row.foodSafetyNotice">食品安全提示：{{ row.foodSafetyNotice }}</div>
+                  <div v-if="row.powerUpdateNote">用电提示：{{ row.powerUpdateNote }}</div>
+                </template>
+                <span v-else>—</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+
         <el-tab-pane label="公示" name="publicity">
           <el-empty v-if="!archive.publicity" description="尚未发布公示" />
           <el-descriptions v-else :column="1" border>
@@ -163,7 +197,8 @@ import { useRoute } from 'vue-router'
 import { api } from '../../api/client'
 import { fmtMoney } from '../../composables/useEvents'
 import {
-  APP_STATUS, CHECKIN_STATUS, DONATION_STATUS, COMPLAINT_STATUS, INCIDENT_TYPES, dictLabel, dictType
+  APP_STATUS, CHECKIN_STATUS, DONATION_STATUS, COMPLAINT_STATUS, INCIDENT_TYPES,
+  STALL_TYPES, CHANGE_STATUS, dictLabel, dictType
 } from '../../dict'
 
 const route = useRoute()
