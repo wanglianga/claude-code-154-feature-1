@@ -112,6 +112,15 @@
         <div v-else style="color:#909399;">暂无收款/捐赠记录</div>
         <el-divider>异常 / 投诉 / 巡检</el-divider>
         <el-timeline>
+          <el-timeline-item v-for="g in current.goodsChanges" :key="'g'+g.id" :timestamp="g.createdAt"
+                            :type="g.status === 'APPROVED' ? 'success' : g.status === 'REMOVED' ? 'danger' : 'warning'">
+            现场换品（{{ g.statusLabel }}）：{{ g.newGoods }}
+            <span v-if="g.foodRelated">｜资质：{{ g.foodQualificationLabel }}</span>
+            <div v-if="g.status === 'REMOVED'" style="color:#f56c6c;">
+              已售 {{ g.soldQuantity || 0 }} 份{{ g.refundNeeded ? '，需退款：' + (g.refundNote || '') : '，无需退款' }}
+            </div>
+            <div v-if="g.foodSafetyNotice" style="color:#e6a23c;">食品安全提示：{{ g.foodSafetyNotice }}</div>
+          </el-timeline-item>
           <el-timeline-item v-for="i in current.incidents" :key="'i'+i.id" :timestamp="i.createdAt" type="danger">
             [{{ incidentLabel(i.type) }}] {{ i.description }}
           </el-timeline-item>

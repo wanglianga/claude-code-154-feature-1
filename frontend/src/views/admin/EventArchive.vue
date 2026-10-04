@@ -137,6 +137,50 @@
           </el-table>
         </el-tab-pane>
 
+        <el-tab-pane :label="`现场换品审核(${archive.goodsChanges?.length || 0})`" name="goodsChanges">
+          <el-table :data="archive.goodsChanges" border size="small">
+            <el-table-column prop="createdAt" label="登记时间" width="160" />
+            <el-table-column prop="shopName" label="摊位" min-width="110" show-overflow-tooltip />
+            <el-table-column prop="newGoods" label="换品内容" min-width="140" show-overflow-tooltip />
+            <el-table-column label="品类" width="70">
+              <template #default="{ row }">
+                <el-tag size="small">{{ row.newCategoryLabel }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="食品资质" width="95">
+              <template #default="{ row }">
+                <el-tag v-if="row.foodRelated" size="small"
+                        :type="row.foodQualification === 'COMPLETE' ? 'success' : 'danger'">
+                  {{ row.foodQualificationLabel }}
+                </el-tag>
+                <span v-else>—</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="结果" width="90">
+              <template #default="{ row }">
+                <el-tag size="small" :type="row.status === 'APPROVED' ? 'success' : row.status === 'REMOVED' ? 'danger' : 'warning'">
+                  {{ row.statusLabel }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="下架处置" min-width="180">
+              <template #default="{ row }">
+                <template v-if="row.status === 'REMOVED'">
+                  已售 {{ row.soldQuantity || 0 }} 份，
+                  <el-tag size="small" :type="row.refundNeeded ? 'danger' : 'info'">
+                    {{ row.refundNeeded ? '需退款：' + (row.refundNote || '') : '无需退款' }}
+                  </el-tag>
+                </template>
+                <span v-else-if="row.foodSafetyNotice" style="color:#e6a23c; font-size:12px;">
+                  {{ row.foodSafetyNotice }}
+                </span>
+                <span v-else>—</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="photoUrls" label="现场照片" min-width="120" show-overflow-tooltip />
+          </el-table>
+        </el-tab-pane>
+
         <el-tab-pane label="公示" name="publicity">
           <el-empty v-if="!archive.publicity" description="尚未发布公示" />
           <el-descriptions v-else :column="1" border>

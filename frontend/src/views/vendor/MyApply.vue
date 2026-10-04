@@ -15,6 +15,17 @@
         活动：{{ current.name }}｜公益目标：{{ current.publicGoal }}｜目标筹款 ¥{{ fmtMoney(current.goalAmount) }}
       </el-alert>
 
+      <el-alert v-if="auth.user?.foodRiskFlag" type="error" :closable="false" style="margin-bottom:14px;">
+        <template #title>
+          您有现场食品风险记录（{{ auth.user.foodRiskCount || 1 }} 次），当前不能报名食品类，
+          请先联系社区完成提前复核
+        </template>
+        <div style="font-size:12px;">{{ auth.user.preReviewReason || '现场换品食品资质不足被下架' }}</div>
+      </el-alert>
+      <el-alert v-else-if="auth.user?.requirePreReview" type="warning" :closable="false" style="margin-bottom:14px;">
+        您的下次报名需社区管理员提前复核：{{ auth.user.preReviewReason || '现场换品处置记录' }}
+      </el-alert>
+
       <el-form :model="f" label-width="140px" v-if="!existing">
         <el-divider content-position="left">售卖信息</el-divider>
         <el-form-item label="店铺/摊位名称" required>
@@ -103,8 +114,10 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { api } from '../../api/client'
 import { useEvents, fmtMoney } from '../../composables/useEvents'
+import { useAuthStore } from '../../stores/auth'
 import { STALL_TYPES, FOOD_QUAL, PAY_METHODS, EVENT_STATUS, dictLabel } from '../../dict'
 
+const auth = useAuthStore()
 const { events, currentEventId, loadEvents, selectEvent } = useEvents()
 const eventId = ref(currentEventId.value)
 const existing = ref(null)

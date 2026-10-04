@@ -9,6 +9,7 @@ public enum IncidentType {
     EARLY_LEAVE("摊主提前离场"),
     DONATION_MISMATCH("捐赠金额与流水不一致"),
     PUBLIC_REQUEST("公益组织要求公示明细"),
+    FOOD_CHANGE_REMOVED("现场换品食品风险下架"),
     OTHER("其他");
 
     private final String label;

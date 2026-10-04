@@ -27,6 +27,8 @@ public class ViewSupport {
     private final ComplaintRepository complaintRepository;
     private final IncidentRepository incidentRepository;
     private final InspectionRepository inspectionRepository;
+    private final GoodsChangeRequestRepository goodsChangeRequestRepository;
+    private final GoodsChangeService goodsChangeService;
 
     public Map<String, Object> userBrief(Long id) {
         if (id == null) {
@@ -39,6 +41,10 @@ public class ViewSupport {
             m.put("realName", u.getRealName());
             m.put("phone", u.getPhone());
             m.put("creditScore", u.getCreditScore());
+            m.put("foodRiskFlag", u.isFoodRiskFlag());
+            m.put("foodRiskCount", u.getFoodRiskCount());
+            m.put("requirePreReview", u.isRequirePreReview());
+            m.put("preReviewReason", u.getPreReviewReason());
             return m;
         }).orElse(null);
     }
@@ -103,6 +109,7 @@ public class ViewSupport {
         m.put("materialsCollected", a.isMaterialsCollected());
         m.put("materialsCollectedAt", a.getMaterialsCollectedAt());
         m.put("actualGoods", a.getActualGoods());
+        m.put("foodSafetyNotice", a.getFoodSafetyNotice());
         m.put("createdAt", a.getCreatedAt());
 
         if (withRelations) {
@@ -117,6 +124,8 @@ public class ViewSupport {
             m.put("complaints", complaintRepository.findByApplicationIdOrderByIdDesc(a.getId()));
             m.put("incidents", incidentRepository.findByApplicationIdOrderByIdDesc(a.getId()));
             m.put("inspections", inspectionRepository.findByApplicationIdOrderByCreatedAtDesc(a.getId()));
+            m.put("goodsChanges", goodsChangeRequestRepository.findByApplicationIdOrderByIdDesc(a.getId())
+                    .stream().map(goodsChangeService::view).toList());
         }
         return m;
     }

@@ -1,5 +1,10 @@
 <template>
   <div class="page-container">
+    <el-alert type="info" :closable="false" style="margin-bottom:12px;">
+      巡检发现摊主临时新增/更换卖品（尤其是新增自制食品）时，请到
+      <el-link type="primary" href="#/onsite/goods-change">现场换品审核</el-link>
+      登记换品内容、食品资质与摊位条件，完成放行或下架处置。
+    </el-alert>
     <el-row :gutter="14">
       <el-col :span="10">
         <el-card header="现场巡检登记">

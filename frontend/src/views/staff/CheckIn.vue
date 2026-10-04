@@ -56,6 +56,10 @@
                     style="margin-top:10px;">
             ⚠ 该食品摊资质不完整，已自动登记高优先级异常，请现场限制制售并通知负责人
           </el-alert>
+          <el-alert v-if="result.application.foodSafetyNotice" type="warning" :closable="false"
+                    style="margin-top:10px;">
+            🍰 食品安全提示（现场换品审核）：{{ result.application.foodSafetyNotice }}
+          </el-alert>
         </el-card>
 
         <el-card header="今日入场动态">

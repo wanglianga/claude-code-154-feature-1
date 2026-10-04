@@ -32,9 +32,11 @@ public class EventService {
     private final DonationRecordRepository donationRepository;
     private final ComplaintRepository complaintRepository;
     private final IncidentRepository incidentRepository;
+    private final GoodsChangeRequestRepository goodsChangeRequestRepository;
     private final UserRepository userRepository;
     private final PublicityRepository publicityRepository;
     private final ViewSupport viewSupport;
+    private final GoodsChangeService goodsChangeService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -93,6 +95,8 @@ public class EventService {
         archive.put("applications", apps.stream().map(a -> viewSupport.applicationView(a, true)).toList());
         archive.put("complaints", complaintRepository.findByEventIdOrderByIdDesc(eventId));
         archive.put("incidents", incidentRepository.findByEventIdOrderByIdDesc(eventId));
+        archive.put("goodsChanges", goodsChangeRequestRepository.findByEventIdOrderByIdDesc(eventId)
+                .stream().map(goodsChangeService::view).toList());
         archive.put("payments", paymentRepository.findByEventIdOrderByIdDesc(eventId));
         archive.put("donations", donationRepository.findByEventIdOrderByIdAsc(eventId));
         archive.put("publicity", publicityRepository.findByEventId(eventId).orElse(null));
@@ -106,11 +110,13 @@ public class EventService {
         List<Application> apps = applicationRepository.findByEventIdOrderByIdAsc(eventId);
         List<Incident> incidents = incidentRepository.findByEventIdOrderByIdDesc(eventId);
         List<Complaint> complaints = complaintRepository.findByEventIdOrderByIdDesc(eventId);
+        List<GoodsChangeRequest> goodsChanges = goodsChangeRequestRepository.findByEventIdOrderByIdDesc(eventId);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("event", event);
         Map<String, Object> stats = viewSupport.eventStats(event, apps);
         result.put("stats", stats);
+        result.put("goodsChanges", goodsChanges);
 
         // 履约红黑榜
         List<Map<String, Object>> ranking = new ArrayList<>();
@@ -130,13 +136,14 @@ public class EventService {
         }
         ranking.sort((x, y) -> ((BigDecimal) y.get("donation")).compareTo((BigDecimal) x.get("donation")));
         result.put("vendorRanking", ranking);
-        result.put("suggestions", suggestions(event, apps, incidents, complaints, stats));
+        result.put("suggestions", suggestions(event, apps, incidents, complaints, stats, goodsChanges));
         return result;
     }
 
     /** 下次招商建议：品类结构、公益目标、食品风险、用电规划、信用准入 */
     private List<String> suggestions(Event event, List<Application> apps, List<Incident> incidents,
-                                     List<Complaint> complaints, Map<String, Object> stats) {
+                                     List<Complaint> complaints, Map<String, Object> stats,
+                                     List<GoodsChangeRequest> goodsChanges) {
         List<String> tips = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
@@ -156,6 +163,25 @@ public class EventService {
         long foodIncidents = incidents.stream().filter(i -> i.getType() == IncidentType.FOOD_QUALIFICATION).count();
         if (foodIncidents > 0) {
             tips.add("出现 " + foodIncidents + " 起食品资质问题，下次报名应强制上传证照照片，资质不全直接驳回");
+        }
+
+        // 现场换品审核情况
+        long changeRemoved = goodsChanges.stream()
+                .filter(g -> g.getStatus() == ChangeReviewStatus.REMOVED).count();
+        long changeApproved = goodsChanges.stream()
+                .filter(g -> g.getStatus() == ChangeReviewStatus.APPROVED).count();
+        if (changeRemoved > 0) {
+            int soldRefund = goodsChanges.stream()
+                    .filter(g -> g.getStatus() == ChangeReviewStatus.REMOVED
+                            && g.getSoldQuantity() != null && g.getSoldQuantity() > 0 && g.isRefundNeeded())
+                    .mapToInt(GoodsChangeRequest::getSoldQuantity).sum();
+            tips.add("现场有 " + changeRemoved + " 起临时换品因食品资质/条件不足被下架"
+                    + (soldRefund > 0 ? "（涉及已售退款 " + soldRefund + " 份）" : "")
+                    + "，相关摊主已标记食品风险，下次食品类报名需提前复核并从严审证");
+        }
+        if (changeApproved > 0) {
+            tips.add("现场 " + changeApproved + " 起临时换品经核验资质、摊位条件后允许售卖，"
+                    + "建议下次报名细化品类选项并开放现场增项报备通道，减少无证售卖");
         }
         if (secondhand * 2 < handmade) {
             tips.add("二手物品摊位偏少，可与社区闲置群合作招募，强化公益循环主题");

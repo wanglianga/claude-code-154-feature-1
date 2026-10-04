@@ -18,6 +18,7 @@
           <template #title><el-icon><Bell /></el-icon><span>现场工作</span></template>
           <el-menu-item index="/onsite/checkin">核销入场 / 物资</el-menu-item>
           <el-menu-item index="/onsite/patrol">巡检 / 临时换品</el-menu-item>
+          <el-menu-item index="/onsite/goods-change">现场换品审核</el-menu-item>
           <el-menu-item index="/onsite/complaints">投诉与异常</el-menu-item>
           <el-menu-item index="/onsite/finance">收款与捐赠核对</el-menu-item>
         </el-sub-menu>
@@ -26,6 +27,7 @@
           <template #title><el-icon><Shop /></el-icon><span>摊主中心</span></template>
           <el-menu-item index="/vendor/apply">我要报名</el-menu-item>
           <el-menu-item index="/vendor/records">我的报名 / 入场码</el-menu-item>
+          <el-menu-item index="/vendor/goods-changes">我的换品审核</el-menu-item>
           <el-menu-item index="/vendor/credit">我的信用</el-menu-item>
         </el-sub-menu>
 
@@ -67,10 +69,12 @@ const titles = {
   '/users': '账号管理',
   '/onsite/checkin': '扫码核销入场与物资发放',
   '/onsite/patrol': '现场巡检与临时换品',
+  '/onsite/goods-change': '现场换品审核（食品资质/摊位条件）',
   '/onsite/complaints': '投诉与现场异常',
   '/onsite/finance': '收款统计与捐赠核对',
   '/vendor/apply': '摊主报名',
   '/vendor/records': '我的报名与入场二维码',
+  '/vendor/goods-changes': '我的现场换品审核记录',
   '/vendor/credit': '我的信用记录'
 }
 const title = computed(() => {

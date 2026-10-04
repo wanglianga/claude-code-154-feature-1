@@ -42,6 +42,11 @@ public class ApplicationService {
         if (req.category() == StallType.FOOD && req.foodQualification() == FoodQualStatus.NONE) {
             throw new BizException("食品类摊位必须填写食品资质状态");
         }
+        // 食品风险事件影响后续食品类报名：观察期内禁止报名食品，需先到社区完成提前复核
+        if (req.category() == StallType.FOOD && vendor.isFoodRiskFlag()) {
+            throw new BizException("您有现场食品风险记录（" + (vendor.getPreReviewReason() == null ? "资质不足被下架" : vendor.getPreReviewReason())
+                    + "），食品类报名暂不受理，请先联系社区完成提前复核解除限制");
+        }
 
         Application a = new Application();
         a.setEventId(req.eventId());
@@ -82,6 +87,16 @@ public class ApplicationService {
         a.setReviewerId(reviewerId);
         a.setReviewComment(comment);
         a.setReviewedAt(java.time.LocalDateTime.now());
+
+        // 被标记"下次报名需提前复核"的摊主：管理员本次审核即提前复核，通过后解除强制复核标记
+        if (approved) {
+            User vendor = userRepository.findById(a.getVendorId()).orElse(null);
+            if (vendor != null && vendor.isRequirePreReview()) {
+                vendor.setRequirePreReview(false);
+                vendor.setPreReviewReason(null);
+                userRepository.save(vendor);
+            }
+        }
         return applicationRepository.save(a);
     }
 
@@ -204,6 +219,10 @@ public class ApplicationService {
         // 食品资质不完整是风险项，分配降权（且不得进食品区）
         if (a.getFoodQualification() == FoodQualStatus.INCOMPLETE) {
             score -= 15;
+        }
+        // 历史食品风险事件（现场换品下架等）：分配降权
+        if (vendor != null && vendor.isFoodRiskFlag()) {
+            score -= 20;
         }
         return score;
     }

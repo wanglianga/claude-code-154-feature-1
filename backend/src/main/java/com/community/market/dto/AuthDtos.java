@@ -12,7 +12,9 @@ public class AuthDtos {
             String phone) {}
 
     public record UserResponse(Long id, String username, String realName, String phone,
-                               String role, Integer creditScore, boolean enabled) {}
+                               String role, Integer creditScore, boolean enabled,
+                               boolean foodRiskFlag, Integer foodRiskCount,
+                               boolean requirePreReview, String preReviewReason) {}
 
     public record LoginResponse(String token, UserResponse user) {}
 }

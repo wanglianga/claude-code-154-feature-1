@@ -40,7 +40,14 @@ export const INCIDENT_TYPES = [
   { value: 'EARLY_LEAVE', label: '摊主提前离场' },
   { value: 'DONATION_MISMATCH', label: '捐赠金额与流水不一致' },
   { value: 'PUBLIC_REQUEST', label: '公益组织要求公示明细' },
+  { value: 'FOOD_CHANGE_REMOVED', label: '现场换品食品风险下架' },
   { value: 'OTHER', label: '其他' }
+]
+
+export const CHANGE_REVIEW_STATUS = [
+  { value: 'PENDING', label: '待审核', type: 'warning' },
+  { value: 'APPROVED', label: '允许售卖', type: 'success' },
+  { value: 'REMOVED', label: '已下架', type: 'danger' }
 ]
 
 export const EVENT_STATUS = [

@@ -25,6 +25,24 @@
             <span v-else>—</span>
           </template>
         </el-table-column>
+        <el-table-column label="食品风险/复核" min-width="180">
+          <template #default="{ row }">
+            <template v-if="row.role === 'VENDOR'">
+              <el-tag v-if="row.foodRiskFlag" size="small" type="danger" style="margin-right:4px;">
+                食品风险 ×{{ row.foodRiskCount || 1 }}
+              </el-tag>
+              <el-tag v-if="row.requirePreReview" size="small" type="warning" style="margin-right:4px;">
+                下次报名需提前复核
+              </el-tag>
+              <el-button v-if="row.foodRiskFlag || row.requirePreReview" size="small" type="success"
+                         @click="clearRisk(row)">
+                复核通过解除
+              </el-button>
+              <span v-if="!row.foodRiskFlag && !row.requirePreReview" style="color:#c0c4cc;">—</span>
+            </template>
+            <span v-else>—</span>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
 
@@ -52,7 +70,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { api } from '../../api/client'
 
 const users = ref([])
@@ -77,6 +95,14 @@ async function save() {
   await api.post(`/admin/users?role=${form.role}`, form)
   ElMessage.success('创建成功')
   dialog.value = false
+  load()
+}
+async function clearRisk(row) {
+  await ElMessageBox.confirm(
+    `确认已对「${row.realName || row.username}」完成提前复核，解除食品风险限制与强制复核标记？`,
+    '提前复核通过', { type: 'warning', confirmButtonText: '复核通过，解除限制' })
+  await api.post(`/admin/vendors/${row.id}/clear-food-risk`, { reason: '管理员现场复核通过' })
+  ElMessage.success('已解除食品风险与提前复核限制')
   load()
 }
 async function load() {

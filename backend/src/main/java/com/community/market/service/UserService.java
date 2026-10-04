@@ -68,7 +68,8 @@ public class UserService {
 
     public AuthDtos.UserResponse toResponse(User u) {
         return new AuthDtos.UserResponse(u.getId(), u.getUsername(), u.getRealName(), u.getPhone(),
-                u.getRole().name(), u.getCreditScore(), u.isEnabled());
+                u.getRole().name(), u.getCreditScore(), u.isEnabled(),
+                u.isFoodRiskFlag(), u.getFoodRiskCount(), u.isRequirePreReview(), u.getPreReviewReason());
     }
 
     public CurrentUser.SessionUser current() {

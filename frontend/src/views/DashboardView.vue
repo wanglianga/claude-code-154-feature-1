@@ -36,11 +36,13 @@
         <el-link v-if="auth.isAdmin" type="primary" :href="`#/events/${eventId}/stalls`">摊位平面图</el-link>
         <el-link v-if="auth.isAdmin" type="primary" :href="`#/events/${eventId}/allocate`">智能分配</el-link>
         <el-link v-if="auth.isAdmin || auth.isStaff" type="primary" href="#/onsite/checkin">扫码核销</el-link>
+        <el-link v-if="auth.isAdmin || auth.isStaff" type="primary" href="#/onsite/goods-change">现场换品审核</el-link>
         <el-link v-if="auth.isAdmin || auth.isStaff" type="primary" href="#/onsite/finance">收款捐赠核对</el-link>
         <el-link v-if="auth.isAdmin || auth.isStaff" type="primary" :href="`#/events/${eventId}/archive`">活动档案</el-link>
         <el-link v-if="auth.isAdmin || auth.isStaff" type="primary" :href="`#/events/${eventId}/review`">复盘建议</el-link>
         <el-link v-if="auth.isVendor" type="success" href="#/vendor/apply">我要报名</el-link>
         <el-link v-if="auth.isVendor" type="success" href="#/vendor/records">我的入场码</el-link>
+        <el-link v-if="auth.isVendor" type="success" href="#/vendor/goods-changes">我的换品审核</el-link>
         <el-link type="info" href="#/public">居民公示端</el-link>
       </el-space>
     </el-card>
